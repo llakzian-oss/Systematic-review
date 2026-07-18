@@ -2,300 +2,348 @@
 
 **Research question:** How does corruption influence infrastructure maintenance spending and infrastructure quality in developing countries?
 
-**Status:** Draft search strategy, cross-checked against a 12-study benchmark set. Ready for information-specialist peer review (PRESS checklist) before execution.
+**Status:** Draft search strategy (v2 — tightened for precision), cross-checked against a 12-study benchmark set. Ready for information-specialist peer review (PRESS checklist) before execution.
+
+**v2 change note:** v1 of this strategy returned unmanageable volume (~22,000 records in initial testing). The root causes, and the fixes applied in this version, are documented in Section 0.
+
+---
+
+## 0. Why v1 was too broad, and what changed
+
+Diagnosis of the volume problem:
+
+1. **Word-sense collision on `corrupt*`.** The truncation `corrupt*` also matches "data corruption", "file corruption", "memory corruption", "signal corruption" — extremely common phrases in computer science, IT and electronic-engineering literature that have nothing to do with political/financial corruption. Combined with `infrastructur*` (equally common in IT literature as "network infrastructure", "cloud infrastructure", "IT infrastructure"), this pairing alone likely produced a large share of the false-positive volume. **Fix:** add an explicit exclusion clause for the data/file/IT sense of "corrupt", and add subject-area filter guidance (Section 5).
+2. **Terms not tied to any benchmark paper.** `fraud*`, `cronyism`, `nepotism`, `patronage`, `clientelis*`, `"pork barrel"`, `"public works"`, `"public asset*"`, `"capital bias"` were included in v1 as generic recall-boosters but are not required to retrieve any of the 12 benchmark studies, and several are individually very high-volume, high-noise terms (e.g. `fraud*` alone spans accounting fraud, tax fraud, insurance fraud, academic fraud). **Fix:** removed from the core string (Section 3).
+3. **Redundant broad terms.** `distort*` and `misallocat*` were added for Sedgo & Omgba (2022) and Sombie (2023), but both papers' titles/abstracts also contain `"public expenditure*"`, which already retrieves them — so `distort*`/`misallocat*` (both very broad standalone economics words: market distortion, price distortion, trade distortion, resource misallocation) added volume without adding unique recall. **Fix:** removed.
+4. **Term-sense collision on "asset management".** Bare `"asset management"` overwhelmingly means *financial* asset/fund/wealth management in the literature, not infrastructure asset management. **Fix:** narrowed to `"infrastructure asset management"` / `"public asset management"`.
+5. **Plain Boolean `AND` across two very large `OR` sets** does not require the two concepts to be topically connected within the abstract — a paper that mentions corruption in one sentence and government spending on an unrelated topic in another sentence still matches. **Fix:** proximity operators (`W/15` / `NEAR/15` / `N15`, i.e. within 15 words) are now the **primary** logic wherever the database supports it, with plain `AND` offered only as a documented fallback if a proximity run under-retrieves.
+6. **The governance-quality widening terms** (`"institutional quality"`, `"governance quality"`, `"political institution*"`) were merged directly into the main string in v1. These are mainstream terms in the (very large) institutions-and-growth economics literature, and pairing them with broad terms like `"government spending"` would itself have contributed materially to the 22,000-record volume. **Fix:** moved out of the core string into a small, separately run **supplementary search** (Section 4), targeted only at infrastructure-specific terms, and used only to chase the two benchmark papers that need it.
+
+All changes were re-checked against the 12 benchmark studies (Section 6) to confirm no recall was lost.
 
 ---
 
 ## 1. Method used to build this strategy
 
 1. Titles, abstracts, and (where retrievable) keywords of all 12 benchmark studies were read and coded into concepts.
-2. Concepts were grouped into two **mandatory** blocks (Corruption; Infrastructure/Public-Expenditure Domain) combined with `AND`. Each block is internally a large synonym `OR` set, truncated wherever the database supports it.
-3. A third concept — **geography (developing countries)** — was deliberately **excluded from the mandatory search logic**. Two benchmark papers (Hessami 2014 = OECD countries; Chen, Liu & Lee 2020 = US states) are not about developing countries at all, so requiring geographic terms in the search string would exclude them. Geography is instead applied as a **title/abstract screening criterion**, which is standard PRISMA practice for keeping search sensitivity high while still applying eligibility criteria downstream.
-4. No theory-of-mechanism terms (e.g., "principal-agent", "rent-seeking theory") were required, per instruction — many benchmark studies are purely empirical and never name a theory.
-5. Each benchmark study's title/abstract was checked term-by-term against the two mandatory blocks (Section 4). Two studies (Arimah 2005; Chen & Martinez-Vazquez 2024) do not contain an explicit corruption term in their visible title/abstract — the Corruption block was widened with governance-quality proxy terms specifically to close this gap (Section 3), and supplementary non-database methods are recommended as a backstop (Section 6).
-6. No publication-date limit is applied (Mauro 1998 is the oldest benchmark study and there is no reason to assume the literature is bounded more recently).
+2. Concepts were grouped into two **mandatory** blocks (Corruption; Infrastructure/Public-Expenditure Domain), combined with proximity (primary) or `AND` (fallback). Each block is internally an `OR` set restricted to terms that are either directly tied to a benchmark paper or a close, low-noise synonym.
+3. A third concept — **geography (developing countries)** — is deliberately **excluded from the mandatory search logic**. Two benchmark papers (Hessami 2014 = OECD countries; Chen, Liu & Lee 2020 = US states) are not about developing countries at all, so requiring geographic terms in the search string would exclude them. Geography is instead applied as a **title/abstract screening criterion**.
+4. No theory-of-mechanism terms (e.g., "principal-agent", "rent-seeking theory") were required, per instruction.
+5. Each benchmark study's title/abstract was checked term-by-term against the core blocks (Section 6). Two studies (Arimah 2005; Chen & Martinez-Vazquez 2024) do not contain an explicit corruption term in their visible title/abstract; these are handled by a small **Supplementary Search 2** (Section 4) plus citation chasing (Section 7), rather than by inflating the main string.
+6. No publication-date limit is applied (Mauro 1998 is the oldest benchmark study).
 
 ---
 
-## 2. Concept groups identified from the benchmark set
+## 2. Concept groups (v2)
 
-| Concept | Role | Example terms | Benchmark studies that supply the term |
-|---|---|---|---|
-| **A. Corruption / illicit practices** | Mandatory block 1 | corrupt*, bribery, graft, embezzlement, misappropriation, kickbacks, collusion, cronyism/patronage | Hessami 2014; Mauro 1998; de la Croix & Delavallade 2008; Delavallade 2006; Kenny 2009 (both); Sedgo & Omgba 2022; Sombie 2023; Chen, Liu & Lee 2020; d'Agostino et al. 2016 |
-| **A2. Governance-quality proxies** | Mandatory block 1 (recall-widening subset) | governance quality, institutional quality, corruption perception/index, political institutions | Added specifically for Arimah 2005 and Chen & Martinez-Vazquez 2024 — see Section 5 |
-| **B. Public expenditure / investment / procurement** | Mandatory block 2 | public expenditure, government spending, public investment, budget/expenditure composition, public procurement, capital expenditure | Hessami 2014; Mauro 1998; de la Croix & Delavallade 2008; Delavallade 2006; Sedgo & Omgba 2022; Sombie 2023; d'Agostino et al. 2016 |
-| **B2. Infrastructure sector & sub-sectors** | Mandatory block 2 | infrastructure, transport*, road*, highway*, public works, urban infrastructure | Kenny 2009 (both); Arimah 2005; Chen & Martinez-Vazquez 2024; Chen, Liu & Lee 2020 |
-| **B3. Maintenance & quality outcomes** | Mandatory block 2 | infrastructure maintenance, maintenance expenditure/spending, infrastructure quality, asset management, O&M | Chen & Martinez-Vazquez 2024; Chen, Liu & Lee 2020; Kenny 2009 (Transport Reviews) |
-| **B4. Distortion/allocation outcomes** | Mandatory block 2 | expenditure distortion, misallocation, expenditure/spending allocation or composition | Sedgo & Omgba 2022; Sombie 2023; Mauro 1998; Hessami 2014 |
-| **C. Geography (developing countries)** | Optional / screening-stage only, NOT ANDed into the search | developing countr*, low-income, middle-income, emerging econom*, transition econom*, Sub-Saharan Africa, Global South | Used for eligibility screening; deliberately not required in the search string (would exclude Hessami 2014 and Chen, Liu & Lee 2020) |
-
-B, B2, B3 and B4 are merged into a single OR-connected "Block 2" in the search strings below (not run as separate AND-mandatory sub-blocks), because several benchmark studies satisfy only *one* of these sub-facets (e.g. Arimah 2005 talks about infrastructure *spending* but not "quality"; Chen, Liu & Lee 2020 talks about infrastructure *quality* but not "maintenance expenditure"). Requiring more than one sub-facet at once would have caused false exclusions.
+| Concept | Role | Benchmark studies that require the term |
+|---|---|---|
+| **A. Corruption / illicit practices** (core) | Mandatory, Search 1 | Hessami 2014; Mauro 1998; de la Croix & Delavallade 2008; Delavallade 2006; Kenny 2009 (both); Sedgo & Omgba 2022; Sombie 2023; Chen, Liu & Lee 2020; d'Agostino et al. 2016 |
+| **B. Infrastructure / public expenditure domain** (core) | Mandatory, Search 1 | All 12 (see Section 6) |
+| **A2. Governance-quality proxies** | Small supplementary block, Search 2 only — not merged into Search 1 | Arimah 2005; Chen & Martinez-Vazquez 2024 |
+| **C. Geography (developing countries)** | Screening-stage only, not searched | Applied to all records after retrieval |
 
 ---
 
-## 3. Full term list and rationale
+## 3. Search 1 (primary, sensitive search) — full term list and rationale
 
-### Block 1 — Corruption (Concepts A + A2)
+### Block 1 — Corruption (core only)
 
 | Term | Rationale |
 |---|---|
-| `corrupt*` | Core concept; truncation captures corruption, corrupt, corruptly, corruptive, corrupts. Present in 9/12 benchmark titles. |
-| `brib*` | Common synonym/operationalisation of corruption (bribe, bribery, briber, bribing). |
-| `graft` | US/African-English synonym for corruption, common in this literature (e.g., Sedgo & Omgba's African-focus journal). |
-| `embezzl*` | Captures embezzlement of public funds, a specific corrupt-practice term used in public-finance corruption studies. |
-| `misappropriat*` | Synonym for diversion of public funds, frequently used interchangeably with "corruption" in expenditure-composition papers. |
-| `kickback*` | Specific procurement-corruption mechanism, directly relevant to Hessami 2014 (public procurement) and Kenny 2009 (infrastructure construction). |
-| `"illicit payment*"` | Common World Bank/IMF phrasing for bribery in the public-investment literature. |
+| `corrupt*` | Core concept. Present in 9/12 benchmark titles. **Must be paired with the data-corruption exclusion clause below** — see Section 5. |
+| `brib*` | bribe, bribery, briber, bribing. |
+| `graft` | Common synonym in this literature. |
+| `embezzl*` | Diversion of public funds — specific corrupt-practice term. |
+| `misappropriat*` | Diversion of public funds, used interchangeably with "corruption" in expenditure-composition papers. |
+| `kickback*` | Procurement-corruption mechanism (Hessami 2014; Kenny, infrastructure construction). |
+| `"illicit payment*"` | Standard World Bank/IMF phrasing for bribery in the public-investment literature. |
 | `malfeasance` | Public-administration synonym for official corruption. |
-| `fraud*` | Broad but standard co-occurring term in public-expenditure corruption literature; constrained by mandatory co-occurrence with Block 2. |
-| `collus*` | Captures collusion/collusive bidding — central mechanism in procurement-corruption studies (Hessami 2014; Kenny, transport construction). |
-| `"grand corruption"` / `"petty corruption"` | Standard typology terms used throughout the corruption-economics literature; increases recall for papers that use the typology instead of the bare word "corruption" only once. |
-| `cronyism`, `nepotism`, `patronage`, `clientelis*`, `"pork barrel"` / `"pork-barrel"` | Political-economy synonyms for corrupt allocation of public resources; broaden recall to patronage-politics framed papers on expenditure allocation. |
-| `"governance quality"`, `"institutional quality"`, `"quality of governance"`, `"governance indicator*"` | **Recall-widening terms.** Added because Arimah (2005) and Chen & Martinez-Vazquez (2024) frame corruption as one determinant within a broader "governance/institutional determinants of infrastructure spending" literature; their abstracts foreground governance/institutional-quality language rather than the bare word "corruption." |
-| `"corruption perception*"`, `"corruption index*"` | Captures papers that operationalise corruption via the Corruption Perceptions Index / ICRG corruption index without necessarily repeating the word "corruption" elsewhere in the abstract. |
-| `"political institution*"` | Added specifically because Chen & Martinez-Vazquez (2024) test "political institutions" as a determinant of infrastructure maintenance spending — a governance-adjacent channel through which corruption/accountability operates. |
+| `collus*` | Collusion/collusive bidding — central mechanism in procurement-corruption studies. |
+| `"grand corruption"` / `"petty corruption"` | Standard typology terms; low-noise phrases (unlike bare `fraud*`, they are specific to the corruption literature). |
 
-**Deliberately excluded:** "principal-agent theory", "rent-seeking theory", "agency theory" — per instruction, since several benchmark papers (e.g., Delavallade 2006, Kenny 2009, Arimah 2005) are empirical and do not invoke a named theory. (Bare "rent-seeking" as a mechanism word was also left out of the mandatory string, since it is theory-flavoured; it is optional and can be added by the reviewer as an extra OR term if later needed — see Section 6.)
+**Removed from v1 (not needed for any benchmark; high noise):** `fraud*`, `cronyism`, `nepotism`, `patronage`, `clientelis*`, `"pork barrel"`/`"pork-barrel"`.
 
-### Block 2 — Infrastructure / Public expenditure domain (Concepts B, B2, B3, B4)
+**Deliberately excluded throughout:** "principal-agent theory", "rent-seeking theory", "agency theory" — per instruction.
+
+### Block 2 — Infrastructure / public expenditure domain (core only)
 
 | Term | Rationale |
 |---|---|
-| `infrastructur*` | Core sector term (infrastructure, infrastructural). Present in 6/12 benchmark titles/abstracts. |
+| `infrastructur*` | Core sector term. **Must be paired with the data/IT-infrastructure exclusion clause** — see Section 5. |
 | `"public investment*"` | Core term for de la Croix & Delavallade 2008. |
-| `"public expenditure*"`, `"government expenditure*"` | Core terms for Mauro 1998, Sedgo & Omgba 2022, Sombie 2023. |
-| `"government spending"`, `"public spending"` | Synonyms for expenditure, used by Delavallade 2006 and d'Agostino et al. 2016. |
-| `"public procurement"` | Core term for Hessami 2014 and the procurement-corruption mechanism generally. |
-| `"budget composition"`, `"expenditure composition"`, `"spending composition"` | Core outcome variable in Mauro 1998 and Hessami 2014 — corruption's effect on *how* budgets are composed, not just their size. |
-| `"expenditure allocation"`, `"spending allocation"` | Synonyms for composition/distribution, matching Delavallade 2006 ("distribution of public spending"). |
-| `"capital expenditure*"`, `"capital spending"` | Common budget-classification terms (capital vs. recurrent/maintenance spending), central to the maintenance-bias literature this review addresses. |
-| `"public works"` | Traditional term for infrastructure construction/investment, common in older literature (relevant given Mauro 1998, no date limit). |
+| `"public expenditure*"`, `"government expenditure*"` | Core terms for Mauro 1998, Sedgo & Omgba 2022, Sombie 2023 — these two phrases alone are sufficient to retrieve both papers, making standalone `distort*`/`misallocat*` unnecessary. |
+| `"government spending"`, `"public spending"` | Used by Delavallade 2006 and d'Agostino et al. 2016. |
+| `"public procurement"` | Core term for Hessami 2014. |
+| `"budget composition"`, `"expenditure composition"`, `"spending composition"` | Core outcome variable in Mauro 1998 and Hessami 2014. |
+| `"expenditure allocation"`, `"spending allocation"` | Matches Delavallade 2006 ("distribution of public spending"). |
+| `"capital expenditure*"`, `"capital spending"` | Capital vs. recurrent/maintenance spending — central to the maintenance-bias theme of the review. |
 | `transport*` | Core term for Kenny 2009 (Transport Reviews) and Chen, Liu & Lee 2020. |
-| `road*`, `highway*` | Sub-sector terms for transport infrastructure, the most commonly studied infrastructure type in this literature. |
-| `"urban infrastructure"` | Matches Arimah 2005 (city-level infrastructure spending). |
-| `"infrastructure spending"`, `"infrastructure investment"` | Direct phrase matches for several benchmark abstracts. |
-| `"infrastructure quality"` | Direct outcome term from the research question and Chen, Liu & Lee 2020. |
-| `"infrastructure maintenance"`, `"maintenance expenditure*"`, `"maintenance spending"`, `"operations and maintenance"` | Direct outcome term from the research question and core to Chen & Martinez-Vazquez 2024. |
-| `"asset management"` | Practitioner/technical synonym for infrastructure maintenance planning. |
-| `"capital bias"` | Named concept in the public-investment-vs-maintenance literature (governments' bias toward new construction over upkeep) — increases recall beyond the 12 benchmark papers for closely related literature. |
-| `distort*`, `misallocat*` | Outcome terms matching Sedgo & Omgba 2022 ("distortion of public expenditures") and Sombie 2023 (distributional/allocation effects). |
-| `"public asset*"` | Broadens recall to public-asset-management framed papers. |
+| `road*`, `highway*` | Sub-sector terms tied directly to the two transport-infrastructure benchmark papers. |
+| `"urban infrastructure"` | Matches Arimah 2005. |
+| `"infrastructure spending"`, `"infrastructure investment"` | Direct phrase matches. |
+| `"infrastructure quality"` | Direct outcome term from the RQ and Chen, Liu & Lee 2020. |
+| `"infrastructure maintenance"`, `"maintenance expenditure*"`, `"maintenance spending"`, `"operations and maintenance"` | Direct outcome term from the RQ and core to Chen & Martinez-Vazquez 2024. |
+| `"infrastructure asset management"`, `"public asset management"` | Narrowed from bare "asset management" (v1) to avoid collision with financial/fund asset-management literature. |
+
+**Removed from v1 (not needed for any benchmark, and/or high noise):** `"public works"`, `"public asset*"`, `"capital bias"`, `distort*`, `misallocat*` (redundant with `"public expenditure*"` for the two papers they were added for), bare `"asset management"`.
 
 ---
 
-## 4. Master Boolean logic (database-agnostic)
+## 4. Search 2 (small supplementary search — governance-quality framing)
+
+Run **separately** from Search 1, with its own, narrower term set, specifically to chase Arimah (2005) and Chen & Martinez-Vazquez (2024)-type papers that discuss corruption via governance/institutional-quality language rather than the word "corruption" itself. Keeping this search separate and narrow (infrastructure-specific Block 2, not the generic public-expenditure terms) is what keeps its volume small — pairing these governance terms with `"government spending"` instead would itself be a very high-volume combination (institutions-and-growth is a huge economics literature).
 
 ```
-( Block 1: Corruption/governance-quality terms, OR-connected )
+( "governance quality" OR "institutional quality" OR "quality of governance"
+  OR "governance indicator*" OR "corruption perception*" OR "corruption index*"
+  OR "political institution*" )
 AND
-( Block 2: Infrastructure/public-expenditure terms, OR-connected )
+( infrastructur* OR "urban infrastructure" OR "infrastructure maintenance"
+  OR "infrastructure spending" OR "infrastructure quality" OR "infrastructure investment" )
 ```
 
-No date limit. No language limit is imposed at the search stage (recommend restricting to English at screening, and noting any non-English exclusions in the PRISMA flow diagram per PRISMA 2020 item 5).
+Apply the same data/IT-infrastructure exclusion clause (Section 5) to the `infrastructur*` term here as well. Screen Search 2 results as a distinct, smaller batch — expect a materially smaller yield than Search 1.
 
 ---
 
-## 5. Database-specific search strategies
+## 5. Handling the `corrupt*` / `infrastructur*` word-sense collision
 
-### 5.1 Scopus
+Both core terms have a common non-relevant sense in computer science/IT literature ("data corruption", "file corruption", "memory corruption"; "network/cloud/IT infrastructure"). Two complementary mitigations, to be applied together:
 
-Field: `TITLE-ABS-KEY` (title, abstract, author keywords, indexed keywords). Truncation `*`. Optional proximity `W/n`.
+**(a) Exclusion clause** (add to every database string in Section 6, adjusted to that platform's `NOT`/`AND NOT` syntax):
+```
+AND NOT ( "data corrupt*" OR "file corrupt*" OR "memory corrupt*" OR "disk corrupt*"
+          OR "signal corrupt*" OR "image corrupt*" OR "software corrupt*"
+          OR "database corrupt*" OR "network infrastructure" OR "cloud infrastructure"
+          OR "IT infrastructure" OR "computing infrastructure" )
+```
+This is a targeted, low-risk exclusion — it removes only records dominated by the IT sense of these words, not records that happen to also mention IT topics in passing.
+
+**(b) Subject-area / database filter** (apply as a facet after running the query, not baked into the Boolean string, so it can be checked against the benchmark set before being finalised):
+- **Scopus:** Limit to Subject Areas Economics/Econometrics/Finance; Business/Management/Accounting; Social Sciences; Environmental Science (captures Urban Studies-type journals). Exclude Computer Science. **Verify Kenny (2009, Transport Reviews) is not lost** before excluding Engineering broadly — Transport Reviews is sometimes cross-listed under Engineering as well as Social Sciences, so do not exclude Engineering outright; exclude Computer Science only.
+- **Web of Science:** Limit to Web of Science Categories in Economics, Business, Public Administration, Urban Studies, Political Science, Transportation (do not exclude Transportation); exclude Computer Science categories.
+- **ProQuest / ABI/INFORM:** Apply a Subject facet excluding "Computers and Information Technology" post-search rather than pre-search, and verify no benchmark-adjacent records are lost.
+- **EconLit:** Low risk — EconLit's corpus is economics-only, so the IT word-sense collision barely applies here; the exclusion clause is optional for this database.
+- **Bond Library Search:** Given the very broad, multi-disciplinary corpus of a discovery layer, this filter matters most here — apply a Subject/Discipline facet limiting to Business/Economics, Social Sciences, Political Science, Public Administration after running the search.
+
+---
+
+## 6. Database-specific search strategies
+
+### 6.1 Scopus
+
+Field: `TITLE-ABS-KEY`. Truncation `*`. Proximity `W/n` (primary logic).
 
 ```
 TITLE-ABS-KEY(
-  ( corrupt* OR brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
-    OR malfeasance OR fraud* OR collus* OR "grand corruption" OR "petty corruption"
-    OR cronyism OR nepotism OR patronage OR clientelis* OR "pork barrel" OR "pork-barrel"
-    OR "governance quality" OR "institutional quality" OR "quality of governance"
-    OR "governance indicator*" OR "corruption perception*" OR "corruption index*"
-    OR "political institution*" )
-  AND
+  ( corrupt*  W/15  ( infrastructur* OR "public investment*" OR "public expenditure*"
+      OR "government expenditure*" OR "government spending" OR "public spending"
+      OR "public procurement" OR "budget composition" OR "expenditure composition"
+      OR "spending composition" OR "expenditure allocation" OR "spending allocation"
+      OR "capital expenditure*" OR "capital spending" OR transport* OR road* OR highway*
+      OR "urban infrastructure" OR "infrastructure spending" OR "infrastructure investment"
+      OR "infrastructure quality" OR "infrastructure maintenance" OR "maintenance expenditure*"
+      OR "maintenance spending" OR "operations and maintenance"
+      OR "infrastructure asset management" OR "public asset management" ) )
+  OR
+  ( brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
+    OR malfeasance OR collus* OR "grand corruption" OR "petty corruption" )
+    AND
   ( infrastructur* OR "public investment*" OR "public expenditure*" OR "government expenditure*"
     OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
     OR "expenditure composition" OR "spending composition" OR "expenditure allocation"
-    OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR "public works"
-    OR transport* OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
+    OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR transport*
+    OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
     OR "infrastructure investment" OR "infrastructure quality" OR "infrastructure maintenance"
     OR "maintenance expenditure*" OR "maintenance spending" OR "operations and maintenance"
-    OR "asset management" OR "capital bias" OR distort* OR misallocat* OR "public asset*" )
+    OR "infrastructure asset management" OR "public asset management" )
 )
+AND NOT ( "data corrupt*" OR "file corrupt*" OR "memory corrupt*" OR "disk corrupt*"
+          OR "signal corrupt*" OR "image corrupt*" OR "software corrupt*"
+          OR "database corrupt*" OR "network infrastructure" OR "cloud infrastructure"
+          OR "IT infrastructure" OR "computing infrastructure" )
 ```
 
-*Optional precision-refinement variant (if the sensitive string above returns an unmanageable volume):* replace the `AND` with proximity, e.g. `(corrupt* W/15 infrastructur*) OR (corrupt* W/15 "public expenditure*") OR (corrupt* W/15 "public investment*") ...` — use only as a secondary, documented run, not a replacement, since proximity reduces sensitivity.
+*Why two sub-clauses:* Scopus's `W/n` proximity operator only connects two single terms/phrases, not two full parenthesised `OR` lists, in a single expression the way plain `AND` does — so `corrupt* W/15 (...)` must be checked/expanded term-by-term in Scopus's actual query builder (Scopus does support `term W/n (A OR B OR C)`, but always pilot-test this exact syntax against the benchmark set in Scopus directly before running at scale, since operator support can shift). The second sub-clause (non-`corrupt*` corruption terms combined with plain `AND`, since these terms carry far less noise on their own) is retained as plain `AND` because kickback*, embezzl*, collus*, etc. do not have the IT-homonym problem, so proximity is not required for precision on that half.
 
-Filters: `LIMIT-TO(LANGUAGE,"English")` optional; `LIMIT-TO(DOCTYPE,"ar") OR LIMIT-TO(DOCTYPE,"re") OR LIMIT-TO(DOCTYPE,"cp")` if restricting to articles/reviews/conference papers.
+Optional filters: `LIMIT-TO(SUBJAREA,"ECON") OR LIMIT-TO(SUBJAREA,"BUSI") OR LIMIT-TO(SUBJAREA,"SOCI") OR LIMIT-TO(SUBJAREA,"ENVI")`; `EXCLUDE(SUBJAREA,"COMP")`. Pilot-test filters against the benchmark set before finalising (see Section 5b caution on Transport Reviews).
 
-### 5.2 Web of Science (Core Collection)
+*Fallback (if proximity syntax under-retrieves in testing):* revert Block 1/Block 2 to plain `AND` (full term lists as in Section 3) plus the `AND NOT` exclusion clause — still materially smaller than v1 because of the term removals in Section 3.
 
-Field: `TS=` (Topic: title, abstract, author keywords, Keywords Plus). Truncation `*`. Proximity `NEAR/n`.
+### 6.2 Web of Science (Core Collection)
+
+Field: `TS=`. Truncation `*`. Proximity `NEAR/n`.
 
 ```
 TS=(
-  (corrupt* OR brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
-   OR malfeasance OR fraud* OR collus* OR "grand corruption" OR "petty corruption"
-   OR cronyism OR nepotism OR patronage OR clientelis* OR "pork barrel" OR "pork-barrel"
-   OR "governance quality" OR "institutional quality" OR "quality of governance"
-   OR "governance indicator*" OR "corruption perception*" OR "corruption index*"
-   OR "political institution*")
-  AND
-  (infrastructur* OR "public investment*" OR "public expenditure*" OR "government expenditure*"
-   OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
-   OR "expenditure composition" OR "spending composition" OR "expenditure allocation"
-   OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR "public works"
-   OR transport* OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
-   OR "infrastructure investment" OR "infrastructure quality" OR "infrastructure maintenance"
-   OR "maintenance expenditure*" OR "maintenance spending" OR "operations and maintenance"
-   OR "asset management" OR "capital bias" OR distort* OR misallocat* OR "public asset*")
+  (corrupt* NEAR/15 (infrastructur* OR "public investment*" OR "public expenditure*"
+     OR "government expenditure*" OR "government spending" OR "public spending"
+     OR "public procurement" OR "budget composition" OR "expenditure composition"
+     OR "spending composition" OR "expenditure allocation" OR "spending allocation"
+     OR "capital expenditure*" OR "capital spending" OR transport* OR road* OR highway*
+     OR "urban infrastructure" OR "infrastructure spending" OR "infrastructure investment"
+     OR "infrastructure quality" OR "infrastructure maintenance" OR "maintenance expenditure*"
+     OR "maintenance spending" OR "operations and maintenance"
+     OR "infrastructure asset management" OR "public asset management"))
+  OR
+  ((brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
+    OR malfeasance OR collus* OR "grand corruption" OR "petty corruption")
+   AND
+   (infrastructur* OR "public investment*" OR "public expenditure*" OR "government expenditure*"
+    OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
+    OR "expenditure composition" OR "spending composition" OR "expenditure allocation"
+    OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR transport*
+    OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
+    OR "infrastructure investment" OR "infrastructure quality" OR "infrastructure maintenance"
+    OR "maintenance expenditure*" OR "maintenance spending" OR "operations and maintenance"
+    OR "infrastructure asset management" OR "public asset management"))
 )
+NOT TS=("data corrupt*" OR "file corrupt*" OR "memory corrupt*" OR "disk corrupt*"
+        OR "signal corrupt*" OR "image corrupt*" OR "software corrupt*"
+        OR "database corrupt*" OR "network infrastructure" OR "cloud infrastructure"
+        OR "IT infrastructure" OR "computing infrastructure")
 ```
 
-Timespan: All years. Databases within WoS Core Collection: select SCI-EXPANDED, SSCI, ESCI at minimum (SSCI is essential — most benchmark studies are social-science/economics).
+Timespan: All years. Databases: SCI-EXPANDED, SSCI, ESCI. Optional Web of Science Category filters as noted in Section 5b — pilot-test before excluding any category.
 
-### 5.3 ProQuest (e.g., PAIS Index / International Bibliography of the Social Sciences / Social Science Premium Collection on the ProQuest platform)
+### 6.3 ProQuest (e.g., PAIS Index / IBSS / Social Science Premium Collection)
 
-Field: `ti,ab,su` (title, abstract, subject terms). Truncation `*`. Proximity `NEAR/n` (unordered), `PRE/n` (ordered).
-
-```
-ti,ab,su(corrupt* OR brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
-  OR malfeasance OR fraud* OR collus* OR "grand corruption" OR "petty corruption"
-  OR cronyism OR nepotism OR patronage OR clientelis* OR "pork barrel" OR "pork-barrel"
-  OR "governance quality" OR "institutional quality" OR "quality of governance"
-  OR "governance indicator*" OR "corruption perception*" OR "corruption index*"
-  OR "political institution*")
-AND
-ti,ab,su(infrastructur* OR "public investment*" OR "public expenditure*" OR "government expenditure*"
-  OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
-  OR "expenditure composition" OR "spending composition" OR "expenditure allocation"
-  OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR "public works"
-  OR transport* OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
-  OR "infrastructure investment" OR "infrastructure quality" OR "infrastructure maintenance"
-  OR "maintenance expenditure*" OR "maintenance spending" OR "operations and maintenance"
-  OR "asset management" OR "capital bias" OR distort* OR misallocat* OR "public asset*")
-```
-
-If initial results seem low, widen the field from `ti,ab,su` to `noft()` ("anywhere except full text") for maximum sensitivity, then re-tighten if volume is unmanageable. Apply a Document Type filter to Scholarly Journals (+ Working Papers/Reports if grey literature is in scope) rather than a subject filter, to avoid false exclusions.
-
-### 5.4 EconLit (via EBSCOhost)
-
-Field tags: `TI` (title), `AB` (abstract), `SU`/`DE` (subject/descriptor). Truncation `*`. Proximity `Nn` (unordered), `Wn` (ordered).
+Field: `ti,ab,su`. Truncation `*`. Proximity `NEAR/n` (unordered).
 
 ```
-S1: TI ( corrupt* OR brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
-     OR malfeasance OR fraud* OR collus* OR "grand corruption" OR "petty corruption"
-     OR cronyism OR nepotism OR patronage OR clientelis* OR "pork barrel" OR "pork-barrel"
-     OR "governance quality" OR "institutional quality" OR "quality of governance"
-     OR "governance indicator*" OR "corruption perception*" OR "corruption index*"
-     OR "political institution*" )
-  OR AB ( same term list as above )
-
-S2: TI ( infrastructur* OR "public investment*" OR "public expenditure*" OR "government expenditure*"
-     OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
-     OR "expenditure composition" OR "spending composition" OR "expenditure allocation"
-     OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR "public works"
-     OR transport* OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
-     OR "infrastructure investment" OR "infrastructure quality" OR "infrastructure maintenance"
-     OR "maintenance expenditure*" OR "maintenance spending" OR "operations and maintenance"
-     OR "asset management" OR "capital bias" OR distort* OR misallocat* OR "public asset*" )
-  OR AB ( same term list as above )
-
-S3: S1 AND S2
+( ti,ab,su(corrupt*) NEAR/15 ti,ab,su(infrastructur* OR "public investment*" OR "public expenditure*"
+    OR "government expenditure*" OR "government spending" OR "public spending"
+    OR "public procurement" OR "budget composition" OR "expenditure composition"
+    OR "spending composition" OR "expenditure allocation" OR "spending allocation"
+    OR "capital expenditure*" OR "capital spending" OR transport* OR road* OR highway*
+    OR "urban infrastructure" OR "infrastructure spending" OR "infrastructure investment"
+    OR "infrastructure quality" OR "infrastructure maintenance" OR "maintenance expenditure*"
+    OR "maintenance spending" OR "operations and maintenance"
+    OR "infrastructure asset management" OR "public asset management") )
+OR
+( ti,ab,su(brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
+    OR malfeasance OR collus* OR "grand corruption" OR "petty corruption")
+  AND
+  ti,ab,su(infrastructur* OR "public investment*" OR "public expenditure*" OR "government expenditure*"
+    OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
+    OR "expenditure composition" OR "spending composition" OR "expenditure allocation"
+    OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR transport*
+    OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
+    OR "infrastructure investment" OR "infrastructure quality" OR "infrastructure maintenance"
+    OR "maintenance expenditure*" OR "maintenance spending" OR "operations and maintenance"
+    OR "infrastructure asset management" OR "public asset management") )
+NOT ti,ab,su("data corrupt*" OR "file corrupt*" OR "memory corrupt*" OR "disk corrupt*"
+    OR "signal corrupt*" OR "image corrupt*" OR "software corrupt*" OR "database corrupt*"
+    OR "network infrastructure" OR "cloud infrastructure" OR "IT infrastructure"
+    OR "computing infrastructure")
 ```
 
-EconLit's JEL classification codes can be used as a supplementary (not replacement) filter to sanity-check coverage: `H41` (Public Goods), `H54` (Infrastructure), `H57` (Procurement), `H83` (Public Administration/Corruption), `O18` (Regional/Urban/Infrastructure in developing economies), `D73` (Corruption/Bureaucracy). Do not apply these as mandatory AND filters — some benchmark papers may be mis-classified — use only to spot-check recall.
+Apply a Document Type filter (Scholarly Journals + Working Papers/Reports) rather than a subject filter, to avoid false exclusions. Confirm `NEAR/n` can span across the two separate `ti,ab,su()` field clauses in your ProQuest instance during pilot testing; if not, restructure as a single `ti,ab,su(termA NEAR/15 termB)` per term-pair, or fall back to plain `AND`.
 
-### 5.5 ABI/INFORM (ProQuest platform)
+### 6.4 EconLit (via EBSCOhost)
 
-Same field logic and syntax as Section 5.3 (ProQuest), since ABI/INFORM runs on the ProQuest platform:
+Field tags: `TI`, `AB`, `SU`/`DE`. Truncation `*`. Proximity `Nn` (unordered).
 
 ```
-ti,ab,su(corrupt* OR brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
-  OR malfeasance OR fraud* OR collus* OR "grand corruption" OR "petty corruption"
-  OR cronyism OR nepotism OR patronage OR clientelis* OR "pork barrel" OR "pork-barrel"
-  OR "governance quality" OR "institutional quality" OR "quality of governance"
-  OR "governance indicator*" OR "corruption perception*" OR "corruption index*"
-  OR "political institution*")
-AND
-ti,ab,su(infrastructur* OR "public investment*" OR "public expenditure*" OR "government expenditure*"
-  OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
-  OR "expenditure composition" OR "spending composition" OR "expenditure allocation"
-  OR "spending allocation" OR "capital expenditure*" OR "capital spending" OR "public works"
-  OR transport* OR road* OR highway* OR "urban infrastructure" OR "infrastructure spending"
-  OR "infrastructure investment" OR "infrastructure quality" OR "infrastructure maintenance"
-  OR "maintenance expenditure*" OR "maintenance spending" OR "operations and maintenance"
-  OR "asset management" OR "capital bias" OR distort* OR misallocat* OR "public asset*")
+S1: TI ( corrupt* ) N15 TI ( infrastructur* OR "public investment*" OR "public expenditure*"
+      OR "government expenditure*" OR "government spending" OR "public spending"
+      OR "public procurement" OR "budget composition" OR "expenditure composition"
+      OR "spending composition" OR "expenditure allocation" OR "spending allocation"
+      OR "capital expenditure*" OR "capital spending" OR transport* OR road* OR highway*
+      OR "urban infrastructure" OR "infrastructure spending" OR "infrastructure investment"
+      OR "infrastructure quality" OR "infrastructure maintenance" OR "maintenance expenditure*"
+      OR "maintenance spending" OR "operations and maintenance"
+      OR "infrastructure asset management" OR "public asset management" )
+    OR
+    AB ( corrupt* ) N15 AB ( same Block-2 list as above )
+
+S2: TI ( brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR "illicit payment*"
+      OR malfeasance OR collus* OR "grand corruption" OR "petty corruption" )
+    OR AB ( same term list )
+
+S3: TI ( same Block-2 list as in S1 ) OR AB ( same Block-2 list )
+
+S4: S1 OR (S2 AND S3)
 ```
 
-ABI/INFORM indexes more practitioner/trade content than EconLit — expect higher recall of grey-literature-adjacent items (e.g., infrastructure asset-management trade press); screen accordingly rather than narrowing the string.
+EconLit's corpus is economics-only, so the data-corruption exclusion clause is optional here (low risk) — apply only if pilot testing shows otherwise. JEL codes `H41`, `H54`, `H57`, `H83`, `O18`, `D73` can be used to spot-check recall, not as mandatory filters.
 
-### 5.6 Bond Library Search (Primo/discovery-layer "OneSearch")
+### 6.5 ABI/INFORM (ProQuest platform)
 
-Discovery layers such as Bond's typically support Boolean `AND`/`OR`/`NOT` and wildcard `*`, but have weak or no support for phrase-proximity operators and search across a much larger, less-curated corpus (books, news, dissertations). Two complementary approaches:
+Same field logic and syntax as Section 6.3, since ABI/INFORM runs on the ProQuest platform. Apply the same `NEAR/15` structure and the `NOT` exclusion clause. Because ABI/INFORM indexes more trade/practitioner and IT-business content than EconLit, the exclusion clause and a "Computers and Information Technology" subject-facet exclusion (applied post-search, then verified against the benchmark set) are both recommended here, not optional.
+
+### 6.6 Bond Library Search (Primo/discovery-layer "OneSearch")
+
+Discovery layers typically support Boolean `AND`/`OR`/`NOT` and wildcard `*`, but weak or no phrase-proximity support, and search a much larger, less-curated corpus (books, news, dissertations, IT trade content) — this is the database most exposed to the word-sense collision in Section 5, so filters matter most here.
 
 **(a) Advanced Search, field-limited to Title + Abstract/Subject (not "Anywhere"):**
 ```
-(corrupt* OR brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR malfeasance OR fraud*
- OR collus* OR cronyism OR nepotism OR patronage OR clientelis*
- OR "governance quality" OR "institutional quality" OR "corruption perception" OR "corruption index"
- OR "political institution*")
+(corrupt* OR brib* OR graft OR embezzl* OR misappropriat* OR kickback* OR malfeasance
+ OR collus*)
 AND
 (infrastructur* OR "public investment" OR "public expenditure" OR "government expenditure"
  OR "government spending" OR "public spending" OR "public procurement" OR "budget composition"
- OR "capital expenditure" OR "public works" OR transport* OR road* OR highway*
- OR "urban infrastructure" OR "infrastructure spending" OR "infrastructure quality"
- OR "infrastructure maintenance" OR "maintenance expenditure" OR "maintenance spending"
- OR "asset management" OR distort* OR misallocat*)
+ OR "capital expenditure" OR transport* OR road* OR highway* OR "urban infrastructure"
+ OR "infrastructure spending" OR "infrastructure quality" OR "infrastructure maintenance"
+ OR "maintenance expenditure" OR "maintenance spending" OR "infrastructure asset management")
+NOT
+("data corruption" OR "file corruption" OR "memory corruption" OR "network infrastructure"
+ OR "cloud infrastructure" OR "IT infrastructure")
 ```
 
-**(b) Apply post-search facets** (not part of the query string, to avoid false exclusions at search time): Resource Type = Articles/Journal Articles (+ Reports/Working Papers if grey literature in scope); Peer Reviewed = Yes (optional, apply only at screening if used, since some working papers in the benchmark set, e.g. earlier versions of de la Croix & Delavallade, may not be peer-reviewed journal articles). Given Bond's index breadth, expect substantially higher irrelevant-result volume than the specialist databases above — this is expected and acceptable at the sensitive-search stage.
+**(b) Apply post-search facets** (not part of the query string): Resource Type = Articles/Journal Articles (+ Reports/Working Papers if grey literature is in scope); Discipline/Subject facet limited to Business/Economics, Social Sciences, Political Science, Public Administration (exclude Computer Science/IT). Verify the facet does not drop any benchmark-adjacent journals before finalising.
+
+### 6.7 Supplementary Search 2 (all databases)
+
+Run the Section 4 query (governance-quality terms AND infrastructure-specific terms, with the same data/IT exclusion clause) separately in each of the six sources above, using the same field codes as that database's main string. Tag results from this search distinctly at the screening stage so its yield and precision can be reported separately in the PRISMA flow diagram.
 
 ---
 
-## 6. Cross-check: would each benchmark paper be retrieved?
+## 7. Cross-check: would each benchmark paper be retrieved by Search 1 + Search 2?
 
-| # | Benchmark study | Block 1 hit (term) | Block 2 hit (term) | Retrieved? | Notes |
+| # | Benchmark study | Corruption-block hit | Infrastructure-block hit | Retrieved? | Notes |
 |---|---|---|---|---|---|
-| 1 | Hessami (2014) | `corrupt*` | `"public procurement"`, `"budget composition"` | ✅ Yes | Clean match on both blocks. |
-| 2 | Mauro (1998) | `corrupt*` | `"government expenditure*"` | ✅ Yes | Clean match. |
-| 3 | de la Croix & Delavallade (2008) | `corrupt*` | `"public investment*"` | ✅ Yes | Clean match. |
-| 4 | Delavallade (2006) | `corrupt*` | `"public spending"` | ✅ Yes | Clean match. |
-| 5 | Kenny (2009), *J. Development Studies* | `corrupt*` | `infrastructur*` | ✅ Yes | Clean match. |
-| 6 | Sedgo & Omgba (2022) | `corrupt*` | `"public expenditure*"`, `distort*` | ✅ Yes | Double match on Block 2. |
-| 7 | Sombie (2023) | `corrupt*` | `"public expenditure*"`, `misallocat*` | ✅ Yes | Confirmed via abstract (bias in allocation of public expenditure). |
-| 8 | Arimah (2005) | ⚠️ No bare "corruption" term found in the retrievable abstract | `infrastructur*`, `"infrastructure spending"`, `"urban infrastructure"` | ⚠️ **At risk** | Abstract (verified via SAGE listing) discusses city-level determinants of infrastructure spending using UN-Habitat governance/urban indicators, but does not use the word "corruption" in the visible abstract. **Mitigation applied:** Block 1 widened with `"governance quality"`, `"institutional quality"`, `"governance indicator*"`, `"corruption perception*"`, `"corruption index*"` — plausible matches if these terms appear in the full abstract/keywords (UN-Habitat's urban indicators database includes governance/corruption-perception measures), but this cannot be guaranteed from title/abstract alone. **See supplementary methods below.** |
-| 9 | Chen & Martinez-Vazquez (2024) | ⚠️ No bare "corruption" term found in the retrievable abstract | `"infrastructure maintenance"`, `infrastructur*` | ⚠️ **At risk** | Abstract centres on fiscal/political decentralization and finds "political institutions" are a significant determinant of maintenance spending. **Mitigation applied:** Block 1 widened with `"political institution*"` and `"institutional quality"`, which plausibly match if this phrase is used in the abstract/keywords, but confirmation was not possible without full-text/database access. **See supplementary methods below.** |
-| 10 | Chen, Liu & Lee (2020) | `corrupt*` | `transport*`, `infrastructur*` | ✅ Yes | Clean match — corruption AND transportation infrastructure quality both in title. |
-| 11 | Kenny (2009), *Transport Reviews* | `corrupt*` | `transport*` | ✅ Yes | Clean match. |
-| 12 | d'Agostino, Dunne & Pieroni (2016) | `corrupt*` | `"government spending"` | ✅ Yes | Clean match. |
+| 1 | Hessami (2014) | `corrupt*` | `"public procurement"`, `"budget composition"` | ✅ Yes | Both terms co-occur closely in the title — well within 15 words. |
+| 2 | Mauro (1998) | `corrupt*` | `"government expenditure*"` | ✅ Yes | Same title, adjacent phrase. |
+| 3 | de la Croix & Delavallade (2008) | `corrupt*` | `"public investment*"` | ✅ Yes | Same title. |
+| 4 | Delavallade (2006) | `corrupt*` | `"public spending"` | ✅ Yes | Same title. |
+| 5 | Kenny (2009), *J. Development Studies* | `corrupt*` | `infrastructur*` | ✅ Yes | Same title ("corruption in infrastructure"). |
+| 6 | Sedgo & Omgba (2022) | `corrupt*` | `"public expenditure*"` | ✅ Yes | Same title; `distort*` no longer needed for recall. |
+| 7 | Sombie (2023) | `corrupt*` | `"public expenditure*"` | ✅ Yes | Confirmed via abstract ("...corruption on public expenditures..."/"...allocation of public expenditure"). |
+| 8 | Arimah (2005) | ⚠️ No bare "corruption" term in the visible abstract | `infrastructur*`, `"urban infrastructure"`, `"infrastructure spending"` | ⚠️ Handled by **Search 2** + citation chasing (Section 8) | Abstract discusses city-level determinants of infrastructure spending using governance/urban indicators; corruption is plausibly one determinant tested, but not confirmable from title/abstract alone. |
+| 9 | Chen & Martinez-Vazquez (2024) | ⚠️ No bare "corruption" term in the visible abstract | `"infrastructure maintenance"`, `infrastructur*` | ⚠️ Handled by **Search 2** + citation chasing (Section 8) | Abstract centres on fiscal/political decentralization; "political institutions" found significant for maintenance spending — matches Search 2's governance-quality block. |
+| 10 | Chen, Liu & Lee (2020) | `corrupt*` | `transport*`, `infrastructur*` | ✅ Yes | Same title. |
+| 11 | Kenny (2009), *Transport Reviews* | `corrupt*` | `transport*` | ✅ Yes | Same title. |
+| 12 | d'Agostino, Dunne & Pieroni (2016) | `corrupt*` | `"government spending"` | ✅ Yes | Same title. |
 
-**Result: 10 of 12 benchmark papers are captured with high confidence by the Boolean string alone; 2 (Arimah 2005; Chen & Martinez-Vazquez 2024) are addressed by the widened governance-quality terms in Block 1 but cannot be verified as captured with certainty using title/abstract text alone**, because no full-text or indexed-keyword access was available during strategy design. This is a known limitation of any keyword-based string for papers that frame corruption as one determinant among several rather than as the primary focus — no further keyword widening was applied beyond Section 3, because broader single-word governance terms (e.g., bare "governance", "accountability", "transparency") would have caused a very large increase in false positives across all six databases without a proportionate gain in true recall for just two papers.
+**Result: 10 of 12 benchmark papers are captured by Search 1 alone, with the corruption and infrastructure terms co-occurring within the title itself (well inside a 15-word proximity window), so the switch to proximity logic does not cost any recall on this set.** The 2 remaining papers (Arimah 2005; Chen & Martinez-Vazquez 2024) are targeted by the small Search 2 plus the supplementary methods in Section 8 — this was not resolved by further widening Search 1, because doing so (e.g. adding bare "governance" or "institutional quality" to the main string) was the specific change that drove volume up in v1.
 
 ---
 
-## 7. Supplementary methods (mandatory alongside the electronic search, per PRISMA-S)
-
-To close the residual gap identified in Section 6, and consistent with PRISMA 2020 / PRISMA-S guidance that database searching alone rarely achieves 100% sensitivity:
+## 8. Supplementary methods (mandatory alongside the electronic search, per PRISMA-S)
 
 1. **Backward citation chasing:** screen the reference lists of Arimah (2005) and Chen & Martinez-Vazquez (2024) — and of every other included study — for additional eligible papers.
-2. **Forward citation chasing:** run "cited by" searches for Arimah (2005) and Chen & Martinez-Vazquez (2024) in Scopus/Web of Science/Google Scholar, since papers citing them for their governance/decentralization-infrastructure findings are likely to include corruption as a related determinant.
-3. **Hand-searching:** manually check recent tables of contents of *Urban Studies*, *Public Finance and Management*, *Journal of Development Studies*, and *World Development* for the review period, since these are the core outlets for this literature.
-4. **Grey literature / institutional search:** World Bank, IMF (Fiscal Affairs Dept.), OECD, and Transparency International publication repositories, using the same two-block logic, since corruption–infrastructure work is heavily produced by these institutions and may not be indexed identically to academic databases.
+2. **Forward citation chasing:** run "cited by" searches for Arimah (2005) and Chen & Martinez-Vazquez (2024) in Scopus/Web of Science/Google Scholar.
+3. **Hand-searching:** manually check recent tables of contents of *Urban Studies*, *Public Finance and Management*, *Journal of Development Studies*, and *World Development*.
+4. **Grey literature / institutional search:** World Bank, IMF (Fiscal Affairs Dept.), OECD, and Transparency International publication repositories, using the Section 3/4 term logic.
 5. Document the yield of each supplementary method separately in the PRISMA flow diagram (PRISMA 2020 item 5).
 
 ---
 
-## 8. Final PRISMA-ready search strategy table
+## 9. Final PRISMA-ready search strategy table
 
-| Source | Interface/Platform | Fields searched | Search string | Limits/filters | Search date | Records retrieved |
-|---|---|---|---|---|---|---|
-| Scopus | Scopus.com | Title, Abstract, Keywords (`TITLE-ABS-KEY`) | See Section 5.1 | None (all years, all languages) | *to be completed when run* | *to be completed* |
-| Web of Science | Clarivate WoS Core Collection | Topic (`TS=`) across SCI-E, SSCI, ESCI | See Section 5.2 | None (all years) | *to be completed when run* | *to be completed* |
-| ProQuest | ProQuest platform (PAIS/IBSS/Social Science Premium) | Title, Abstract, Subject (`ti,ab,su`) | See Section 5.3 | Document type: Scholarly Journals (+ Reports/Working Papers) | *to be completed when run* | *to be completed* |
-| EconLit | EBSCOhost | Title, Abstract (`TI`, `AB`) | See Section 5.4 | None | *to be completed when run* | *to be completed* |
-| ABI/INFORM | ProQuest platform | Title, Abstract, Subject (`ti,ab,su`) | See Section 5.5 | None | *to be completed when run* | *to be completed* |
-| Bond Library Search | Primo ("OneSearch") | Title + Abstract/Subject (Advanced Search) | See Section 5.6 | Resource type facet applied post-search (Articles/Reports) | *to be completed when run* | *to be completed* |
+| Source | Interface/Platform | Fields searched | Primary logic | Search string | Filters | Search date | Records (Search 1) | Records (Search 2) |
+|---|---|---|---|---|---|---|---|---|
+| Scopus | Scopus.com | `TITLE-ABS-KEY` | Proximity `W/15` (fallback: `AND`) | Section 6.1 | Optional subject-area facet, pilot-tested | *to be completed* | *to be completed* | *to be completed* |
+| Web of Science | WoS Core Collection | `TS=` | Proximity `NEAR/15` (fallback: `AND`) | Section 6.2 | SCI-E, SSCI, ESCI; optional category facet | *to be completed* | *to be completed* | *to be completed* |
+| ProQuest | PAIS/IBSS/Social Science Premium | `ti,ab,su` | Proximity `NEAR/15` (fallback: `AND`) | Section 6.3 | Document type: Scholarly Journals (+ Reports) | *to be completed* | *to be completed* | *to be completed* |
+| EconLit | EBSCOhost | `TI`, `AB` | Proximity `N15` (fallback: `AND`) | Section 6.4 | None required | *to be completed* | *to be completed* | *to be completed* |
+| ABI/INFORM | ProQuest platform | `ti,ab,su` | Proximity `NEAR/15` (fallback: `AND`) | Section 6.5 | Subject facet excluding Computers/IT | *to be completed* | *to be completed* | *to be completed* |
+| Bond Library Search | Primo ("OneSearch") | Title + Abstract/Subject | Plain `AND`/`NOT` | Section 6.6 | Resource type + discipline facet (exclude CS/IT) | *to be completed* | *to be completed* | *to be completed* |
 
-**Supplementary methods:** backward/forward citation chasing on all included studies; hand-search of *Urban Studies*, *Public Finance and Management*, *Journal of Development Studies*, *World Development*; grey-literature search of World Bank, IMF, OECD, Transparency International repositories (Section 7).
+**Deduplication:** merge exports across all six sources and both searches (e.g., in EndNote/Zotero/Rayyan) before title/abstract screening.
 
-**Deduplication:** merge exports across all six sources (e.g., in EndNote/Zotero/Rayyan) before title/abstract screening.
+**Screening-stage eligibility criteria (applied after retrieval, not baked into the search string):** geographic scope (developing/transition economies), empirical or theoretical focus on the corruption→infrastructure-spending/quality relationship, English language (if elected), peer-reviewed or grey-literature-eligible per protocol.
 
-**Screening-stage eligibility criteria (applied after retrieval, not baked into the search string):** geographic scope (developing/transition economies — Concept C, Section 1), empirical or theoretical focus on the corruption→infrastructure-spending/quality relationship, English language (if elected), peer-reviewed or grey-literature-eligible per protocol.
+**Recommended pilot step before full execution:** run Section 6.1–6.6 in each database and confirm all 10 "clean" benchmark papers (Section 7) are returned, then check total record count is in a screenable range; if any database still returns an unexpectedly large volume, tighten further by (a) narrowing `transport*`/`road*`/`highway*` to `"transport infrastructure"`/`"road infrastructure"` if those single words are the driver, or (b) applying the subject/discipline facets in Section 5b as mandatory rather than optional.
